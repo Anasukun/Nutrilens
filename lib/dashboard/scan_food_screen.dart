@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:camera/camera.dart';
+import '../main.dart'; // for the global `cameras` list
 
 class ScanFoodScreen extends StatefulWidget {
   const ScanFoodScreen({super.key});
@@ -16,6 +18,11 @@ class _ScanFoodScreenState extends State<ScanFoodScreen>
   bool _lockTarget = false; // Whether the target is "locked"
   Color _trackingColor = Colors.white; // Color of the tracking dot/line
 
+  // Camera
+  CameraController? _cameraController;
+  bool _isCameraInitialized = false;
+  String? _cameraError;
+
   @override
   void initState() {
     super.initState();
@@ -29,8 +36,44 @@ class _ScanFoodScreenState extends State<ScanFoodScreen>
       end: 1.0,
     ).animate(_animationController);
 
+    // Initialize camera
+    _initializeCamera();
+
     // Sequence of events for real-time tracking simulation
     _startScanSequence();
+  }
+
+  Future<void> _initializeCamera() async {
+    if (cameras.isEmpty) {
+      setState(() {
+        _cameraError = 'No cameras available';
+      });
+      return;
+    }
+
+    // Use the first back-facing camera
+    final CameraDescription camera = cameras.firstWhere(
+      (cam) => cam.lensDirection == CameraLensDirection.back,
+      orElse: () => cameras.first,
+    );
+
+    _cameraController = CameraController(
+      camera,
+      ResolutionPreset.high,
+      enableAudio: false,
+    );
+
+    try {
+      await _cameraController!.initialize();
+      if (!mounted) return;
+      setState(() {
+        _isCameraInitialized = true;
+      });
+    } catch (e) {
+      setState(() {
+        _cameraError = 'Camera error: $e';
+      });
+    }
   }
 
   void _startScanSequence() async {
@@ -74,6 +117,7 @@ class _ScanFoodScreenState extends State<ScanFoodScreen>
 
   @override
   void dispose() {
+    _cameraController?.dispose();
     _animationController.dispose();
     super.dispose();
   }
@@ -84,23 +128,32 @@ class _ScanFoodScreenState extends State<ScanFoodScreen>
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // Simulated Camera Background
+          // Live Camera Background
           Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFF5D5945), // Muted dark olive
-                    Color(0xFF8B8770), // Lighter olive/grey
-                  ],
-                ),
-              ),
-              child: const Center(
-                child: Icon(Icons.camera_alt, size: 100, color: Colors.white24),
-              ),
-            ),
+            child: _isCameraInitialized && _cameraController != null
+                ? ClipRect(
+                    child: FittedBox(
+                      fit: BoxFit.cover,
+                      child: SizedBox(
+                        width: _cameraController!.value.previewSize!.height,
+                        height: _cameraController!.value.previewSize!.width,
+                        child: CameraPreview(_cameraController!),
+                      ),
+                    ),
+                  )
+                : Container(
+                    color: Colors.black,
+                    child: Center(
+                      child: _cameraError != null
+                          ? Text(
+                              _cameraError!,
+                              style: const TextStyle(color: Colors.white70),
+                            )
+                          : const CircularProgressIndicator(
+                              color: Color(0xFF8B9D42),
+                            ),
+                    ),
+                  ),
           ),
 
           // AR Tracking Overlay (The Dot and Line)
@@ -122,7 +175,7 @@ class _ScanFoodScreenState extends State<ScanFoodScreen>
                           border: Border.all(color: Colors.white, width: 2),
                           boxShadow: [
                             BoxShadow(
-                              color: _trackingColor.withOpacity(0.6),
+                              color: _trackingColor.withValues(alpha: 0.6),
                               blurRadius: 8,
                               spreadRadius: 2,
                             ),
@@ -134,7 +187,7 @@ class _ScanFoodScreenState extends State<ScanFoodScreen>
                     Center(
                       child: CustomPaint(
                         painter: _LinePainter(color: _trackingColor),
-                        child: Container(
+                        child: SizedBox(
                           width: 150,
                           height: 100,
                         ), // Size of the line area
@@ -150,10 +203,10 @@ class _ScanFoodScreenState extends State<ScanFoodScreen>
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.6),
+                          color: Colors.black.withValues(alpha: 0.6),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: _trackingColor.withOpacity(0.5),
+                            color: _trackingColor.withValues(alpha: 0.5),
                           ),
                         ),
                         child: Text(
@@ -183,10 +236,10 @@ class _ScanFoodScreenState extends State<ScanFoodScreen>
                   child: Container(
                     height: 2,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF8B9D42).withOpacity(0.8),
+                      color: const Color(0xFF8B9D42).withValues(alpha: 0.8),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF8B9D42).withOpacity(0.5),
+                          color: const Color(0xFF8B9D42).withValues(alpha: 0.5),
                           blurRadius: 10,
                           spreadRadius: 2,
                         ),
@@ -209,7 +262,7 @@ class _ScanFoodScreenState extends State<ScanFoodScreen>
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.arrow_back, color: Colors.white),
@@ -221,7 +274,7 @@ class _ScanFoodScreenState extends State<ScanFoodScreen>
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.4),
+                      color: Colors.black.withValues(alpha: 0.4),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -249,7 +302,7 @@ class _ScanFoodScreenState extends State<ScanFoodScreen>
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.flash_on, color: Colors.white),
@@ -391,7 +444,9 @@ class _ScanFoodScreenState extends State<ScanFoodScreen>
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF8B9D42).withOpacity(0.2),
+                            color: const Color(
+                              0xFF8B9D42,
+                            ).withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Text(
@@ -476,7 +531,7 @@ class _ScanFoodScreenState extends State<ScanFoodScreen>
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white54),
                   ),
@@ -498,7 +553,7 @@ class _ScanFoodScreenState extends State<ScanFoodScreen>
                     color: Colors.white,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.5),
+                      color: Colors.white.withValues(alpha: 0.5),
                       width: 4,
                     ),
                   ),
@@ -509,7 +564,7 @@ class _ScanFoodScreenState extends State<ScanFoodScreen>
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
+                    color: Colors.black.withValues(alpha: 0.5),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.edit, color: Colors.white, size: 24),
@@ -582,7 +637,7 @@ class _NutrientCircle extends StatelessWidget {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: Colors.grey.withValues(alpha: 0.1),
                 spreadRadius: 1,
                 blurRadius: 3,
               ),
@@ -688,7 +743,7 @@ class FoodDetailsSheet extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 10,
                         spreadRadius: 2,
                       ),
@@ -722,7 +777,7 @@ class FoodDetailsSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
+                          color: Colors.black.withValues(alpha: 0.03),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -802,7 +857,12 @@ class FoodDetailsSheet extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _buildMacroRow('Protein', '18g', 0.6, const Color(0xFF4A1817)),
+                  _buildMacroRow(
+                    'Protein',
+                    '18g',
+                    0.6,
+                    const Color(0xFF4A1817),
+                  ),
                   const SizedBox(height: 12),
                   _buildMacroRow('Carbohydrates', '24g', 0.4, Colors.amber),
                   const SizedBox(height: 12),
@@ -855,7 +915,7 @@ class FoodDetailsSheet extends StatelessWidget {
                       color: const Color(0xFFFFF3E0), // Light orange bg
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: const Color(0xFFFFB74D).withOpacity(0.5),
+                        color: const Color(0xFFFFB74D).withValues(alpha: 0.5),
                       ),
                     ),
                     child: Row(
@@ -955,7 +1015,7 @@ class FoodDetailsSheet extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 5,
             offset: const Offset(0, 2),
           ),
@@ -973,13 +1033,7 @@ class FoodDetailsSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
-          ),
+          Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
         ],
       ),
     );

@@ -86,7 +86,10 @@ class _HeaderSection extends StatelessWidget {
           padding: const EdgeInsets.all(2),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: Colors.green.withOpacity(0.5), width: 2),
+            border: Border.all(
+              color: Colors.green.withValues(alpha: 0.5),
+              width: 2,
+            ),
             color: Colors.white,
           ),
           child: const Padding(
@@ -125,7 +128,7 @@ class _DailySummaryCard extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.2),
+                  color: Colors.green.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Text(
@@ -280,7 +283,7 @@ class _QuickActionsSection extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(

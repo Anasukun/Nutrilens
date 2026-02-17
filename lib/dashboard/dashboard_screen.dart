@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../repositories/meal_repository.dart';
 import 'scan_food_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -9,34 +10,46 @@ class DashboardScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5), // Light grey background
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const _HeaderSection(),
-              const SizedBox(height: 24),
-              const _DailySummaryCard(),
-              const SizedBox(height: 24),
-              const Text(
-                'Quick Actions',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E1E1E),
-                ),
+        child: ValueListenableBuilder<List<LoggedMeal>>(
+          valueListenable: MealRepository.instance.meals,
+          builder: (context, meals, child) {
+            // Calculate daily totals
+            final todayCalories = MealRepository.instance.todayCalories;
+            final todayMacros = MealRepository.instance.todayMacros;
+
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const _HeaderSection(),
+                  const SizedBox(height: 24),
+                  _DailySummaryCard(
+                    calories: todayCalories,
+                    macros: todayMacros,
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Quick Actions',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1E1E1E),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const _QuickActionsSection(),
+                  const SizedBox(height: 24),
+                  const _WellnessTipCard(),
+                  const SizedBox(height: 24),
+                  const _TodaysMealsHeader(),
+                  const SizedBox(height: 16),
+                  _MealList(meals: meals),
+                  const SizedBox(height: 80), // Space for bottom nav
+                ],
               ),
-              const SizedBox(height: 16),
-              const _QuickActionsSection(),
-              const SizedBox(height: 24),
-              const _WellnessTipCard(),
-              const SizedBox(height: 24),
-              const _TodaysMealsHeader(),
-              const SizedBox(height: 16),
-              const _MealList(),
-              const SizedBox(height: 80), // Space for bottom nav
-            ],
-          ),
+            );
+          },
         ),
       ),
       bottomNavigationBar: const _CustomBottomNavigationBar(),
@@ -103,10 +116,20 @@ class _HeaderSection extends StatelessWidget {
 }
 
 class _DailySummaryCard extends StatelessWidget {
-  const _DailySummaryCard();
+  final int calories;
+  final Map<String, double> macros;
+
+  const _DailySummaryCard({
+    required this.calories,
+    required this.macros,
+  });
 
   @override
   Widget build(BuildContext context) {
+    const int calorieGoal = 2000;
+    final int caloriesLeft = (calorieGoal - calories).clamp(0, calorieGoal);
+    final double progress = (calories / calorieGoal).clamp(0.0, 1.0);
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -128,13 +151,15 @@ class _DailySummaryCard extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.2),
+                  color: calories > 0
+                      ? const Color(0xFF8B9D42).withValues(alpha: 0.2)
+                      : Colors.green.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Text(
-                  'On Track',
+                child: Text(
+                  calories > 0 ? 'Tracking' : 'No Data',
                   style: TextStyle(
-                    color: Colors.green,
+                    color: calories > 0 ? const Color(0xFF5D6B2C) : Colors.grey,
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
@@ -150,7 +175,7 @@ class _DailySummaryCard extends StatelessWidget {
                 width: 180,
                 height: 180,
                 child: CircularProgressIndicator(
-                  value: 0.7, // Example progress
+                  value: progress,
                   strokeWidth: 15,
                   backgroundColor: Colors.grey[200],
                   valueColor: const AlwaysStoppedAnimation<Color>(
@@ -160,16 +185,16 @@ class _DailySummaryCard extends StatelessWidget {
               ),
               Column(
                 mainAxisSize: MainAxisSize.min,
-                children: const [
+                children: [
                   Text(
-                    '1,420',
-                    style: TextStyle(
+                    '$caloriesLeft',
+                    style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF1E1E1E),
                     ),
                   ),
-                  Text(
+                  const Text(
                     'KCAL LEFT',
                     style: TextStyle(
                       fontSize: 12,
@@ -184,24 +209,24 @@ class _DailySummaryCard extends StatelessWidget {
           const SizedBox(height: 30),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: const [
+            children: [
               _MacroNutrientInfo(
                 label: 'Protein',
-                amount: '94g',
-                color: Color(0xFF4A1817),
-                percentage: 0.6,
+                amount: '${macros['Protein']!.toInt()}g',
+                color: const Color(0xFF4A1817),
+                percentage: (macros['Protein']! / 150).clamp(0.0, 1.0), // Example goal 150g
               ),
               _MacroNutrientInfo(
                 label: 'Carbs',
-                amount: '120g',
-                color: Color(0xFF8B9D42),
-                percentage: 0.4,
+                amount: '${macros['Carbs']!.toInt()}g',
+                color: const Color(0xFF8B9D42),
+                percentage: (macros['Carbs']! / 250).clamp(0.0, 1.0), // Example goal 250g
               ),
               _MacroNutrientInfo(
                 label: 'Fat',
-                amount: '45g',
+                amount: '${macros['Fat']!.toInt()}g',
                 color: Colors.orange,
-                percentage: 0.3,
+                percentage: (macros['Fat']! / 70).clamp(0.0, 1.0), // Example goal 70g
               ),
             ],
           ),
@@ -307,6 +332,7 @@ class _QuickActionsSection extends StatelessWidget {
         const SizedBox(width: 16),
         Expanded(
           child: Container(
+            key: const Key('meal_history_button'),
             height: 120,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -420,26 +446,59 @@ class _TodaysMealsHeader extends StatelessWidget {
 }
 
 class _MealList extends StatelessWidget {
-  const _MealList();
+  final List<LoggedMeal> meals;
+
+  const _MealList({required this.meals});
 
   @override
   Widget build(BuildContext context) {
+    if (meals.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          children: [
+            Icon(Icons.restaurant, size: 40, color: Colors.grey[300]),
+            const SizedBox(height: 12),
+            Text(
+              'No meals logged yet',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[500],
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Scan your first meal to get started!',
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey[400],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Column(
-      children: const [
-        _MealItem(
-          name: 'Avocado Toast',
-          time: 'Breakfast • 8:30 AM',
-          calories: '340 kcal',
-          icon: Icons.breakfast_dining,
-        ),
-        SizedBox(height: 12),
-        _MealItem(
-          name: 'Chicken Salad',
-          time: 'Lunch • 1:15 PM',
-          calories: '450 kcal',
-          icon: Icons.lunch_dining,
-        ),
-      ],
+      children: meals.map((meal) {
+        final hours = meal.timestamp.hour.toString().padLeft(2, '0');
+        final minutes = meal.timestamp.minute.toString().padLeft(2, '0');
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12.0),
+          child: _MealItem(
+            name: meal.result.foodName,
+            time: '$hours:$minutes',
+            calories: '${meal.result.totalCalories} kcal',
+            icon: Icons.fastfood,
+          ),
+        );
+      }).toList(),
     );
   }
 }

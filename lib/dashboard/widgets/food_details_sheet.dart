@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../../models/food_analysis_result.dart';
 import '../../utils/color_helpers.dart';
 
+import '../macronutrient_page.dart';
+import '../micronutrient_page.dart';
+
 class FoodDetailsSheet extends StatelessWidget {
   final FoodAnalysisResult result;
   final File? imageFile;
@@ -221,9 +224,30 @@ class FoodDetailsSheet extends StatelessWidget {
                         const SizedBox(height: 32),
 
                         // Macros
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 24),
-                          child: Text('MACRONUTRIENTS', style: _headerStyle),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('MACRONUTRIENTS', style: _headerStyle),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const MacronutrientPage(),
+                                    ),
+                                  );
+                                },
+                                child: const Icon(
+                                  Icons.info_outline_rounded,
+                                  size: 20,
+                                  color: Color(0xFF9E9E9E),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 16),
                         SizedBox(
@@ -263,9 +287,33 @@ class FoodDetailsSheet extends StatelessWidget {
 
                         // Micros (Grid)
                         if (result.micros.isNotEmpty) ...[
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 24),
-                            child: Text('MICRONUTRIENTS', style: _headerStyle),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'MICRONUTRIENTS',
+                                  style: _headerStyle,
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const MicronutrientPage(),
+                                      ),
+                                    );
+                                  },
+                                  child: const Icon(
+                                    Icons.info_outline_rounded,
+                                    size: 20,
+                                    color: Color(0xFF9E9E9E),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 16),
                           Padding(

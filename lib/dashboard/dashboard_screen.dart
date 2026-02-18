@@ -3,6 +3,7 @@ import '../repositories/meal_repository.dart';
 import '../theme/app_colors.dart';
 import 'scan_food_screen.dart';
 import 'meal_history_screen.dart';
+import 'guides_page.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -628,10 +629,18 @@ class _CustomBottomNavigationBar extends StatelessWidget {
                 isActive: false,
               ),
             ),
-            _NavBarItem(
-              icon: Icons.person_outline,
-              label: 'Profile',
-              isActive: false,
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const GuidesPage()),
+                );
+              },
+              child: const _NavBarItem(
+                icon: Icons.menu_book,
+                label: 'Guides',
+                isActive: false,
+              ),
             ),
           ],
         ),

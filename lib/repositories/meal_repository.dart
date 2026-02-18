@@ -12,8 +12,12 @@ class MealRepository {
   final ValueNotifier<List<LoggedMeal>> meals = ValueNotifier([]);
 
   /// Add a meal to the log.
-  void addMeal(FoodAnalysisResult result) {
-    final newMeal = LoggedMeal(result: result, timestamp: DateTime.now());
+  void addMeal(FoodAnalysisResult result, {String? imagePath}) {
+    final newMeal = LoggedMeal(
+      result: result,
+      timestamp: DateTime.now(),
+      imagePath: imagePath,
+    );
     // ValueNotifier only notifies if the reference changes or we manually notify.
     // List.add doesn't change reference, so we create a new list.
     meals.value = [newMeal, ...meals.value];
@@ -38,7 +42,7 @@ class MealRepository {
       for (final macro in meal.result.macros) {
         if (macro.name == 'Protein') protein += macro.amount;
         if (macro.name == 'Carbs') carbs += macro.amount;
-        if (macro.name == 'Fat') fat += macro.amount;
+        if (macro.name == 'Fat' || macro.name == 'Fats') fat += macro.amount;
       }
     }
 
@@ -55,5 +59,7 @@ class LoggedMeal {
   final FoodAnalysisResult result;
   final DateTime timestamp;
 
-  LoggedMeal({required this.result, required this.timestamp});
+  final String? imagePath;
+
+  LoggedMeal({required this.result, required this.timestamp, this.imagePath});
 }

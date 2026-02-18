@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'dashboard/dashboard_screen.dart';
 import 'repositories/food_repository.dart';
 import 'repositories/mock_food_repository.dart';
+import 'splash_screen.dart';
 import 'repositories/cached_food_repository.dart';
 
 late List<CameraDescription> cameras;
@@ -33,7 +33,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: DashboardScreen(),
+      home: SplashScreen(),
     );
   }
 }

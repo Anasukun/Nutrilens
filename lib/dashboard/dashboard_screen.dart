@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../repositories/meal_repository.dart';
+import '../theme/app_colors.dart';
 import 'scan_food_screen.dart';
+import 'meal_history_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -8,7 +10,7 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5), // Light grey background
+      backgroundColor: AppColors.background, // Light grey background
       body: SafeArea(
         child: ValueListenableBuilder<List<LoggedMeal>>(
           valueListenable: MealRepository.instance.meals,
@@ -60,7 +62,7 @@ class DashboardScreen extends StatelessWidget {
             MaterialPageRoute(builder: (context) => const ScanFoodScreen()),
           );
         },
-        backgroundColor: const Color(0xFF4A1817), // Dark reddish brown
+        backgroundColor: AppColors.secondary,
         shape: const CircleBorder(),
         child: const Icon(Icons.add, color: Colors.white, size: 32),
       ),
@@ -82,15 +84,15 @@ class _HeaderSection extends StatelessWidget {
           children: const [
             Text(
               'Good Morning,',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+              style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
             ),
             SizedBox(height: 4),
             Text(
-              'Jessica Doe',
+              'Anas Asyraaf',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF4A1817), // Dark reddish brown
+                color: AppColors.secondary,
               ),
             ),
           ],
@@ -119,15 +121,11 @@ class _DailySummaryCard extends StatelessWidget {
   final int calories;
   final Map<String, double> macros;
 
-  const _DailySummaryCard({
-    required this.calories,
-    required this.macros,
-  });
+  const _DailySummaryCard({required this.calories, required this.macros});
 
   @override
   Widget build(BuildContext context) {
     const int calorieGoal = 2000;
-    final int caloriesLeft = (calorieGoal - calories).clamp(0, calorieGoal);
     final double progress = (calories / calorieGoal).clamp(0.0, 1.0);
 
     return Container(
@@ -152,14 +150,16 @@ class _DailySummaryCard extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: calories > 0
-                      ? const Color(0xFF8B9D42).withValues(alpha: 0.2)
+                      ? AppColors.primary.withValues(alpha: 0.2)
                       : Colors.green.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   calories > 0 ? 'Tracking' : 'No Data',
                   style: TextStyle(
-                    color: calories > 0 ? const Color(0xFF5D6B2C) : Colors.grey,
+                    color: calories > 0
+                        ? AppColors.primaryDark
+                        : AppColors.textSecondary,
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
@@ -179,15 +179,15 @@ class _DailySummaryCard extends StatelessWidget {
                   strokeWidth: 15,
                   backgroundColor: Colors.grey[200],
                   valueColor: const AlwaysStoppedAnimation<Color>(
-                    Color(0xFF8B9D42),
-                  ), // Olive green
+                    AppColors.primary,
+                  ),
                 ),
               ),
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '$caloriesLeft',
+                    '$calories',
                     style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
@@ -195,7 +195,7 @@ class _DailySummaryCard extends StatelessWidget {
                     ),
                   ),
                   const Text(
-                    'KCAL LEFT',
+                    'KCAL CONSUMED',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey,
@@ -213,20 +213,29 @@ class _DailySummaryCard extends StatelessWidget {
               _MacroNutrientInfo(
                 label: 'Protein',
                 amount: '${macros['Protein']!.toInt()}g',
-                color: const Color(0xFF4A1817),
-                percentage: (macros['Protein']! / 150).clamp(0.0, 1.0), // Example goal 150g
+                color: AppColors.secondary,
+                percentage: (macros['Protein']! / 150).clamp(
+                  0.0,
+                  1.0,
+                ), // Example goal 150g
               ),
               _MacroNutrientInfo(
                 label: 'Carbs',
                 amount: '${macros['Carbs']!.toInt()}g',
-                color: const Color(0xFF8B9D42),
-                percentage: (macros['Carbs']! / 250).clamp(0.0, 1.0), // Example goal 250g
+                color: AppColors.primary,
+                percentage: (macros['Carbs']! / 250).clamp(
+                  0.0,
+                  1.0,
+                ), // Example goal 250g
               ),
               _MacroNutrientInfo(
                 label: 'Fat',
                 amount: '${macros['Fat']!.toInt()}g',
                 color: Colors.orange,
-                percentage: (macros['Fat']! / 70).clamp(0.0, 1.0), // Example goal 70g
+                percentage: (macros['Fat']! / 70).clamp(
+                  0.0,
+                  1.0,
+                ), // Example goal 70g
               ),
             ],
           ),
@@ -295,7 +304,7 @@ class _QuickActionsSection extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF8B9D42), Color(0xFFA5B950)],
+                  colors: [AppColors.primary, AppColors.primaryLight],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -331,35 +340,48 @@ class _QuickActionsSection extends StatelessWidget {
         ),
         const SizedBox(width: 16),
         Expanded(
-          child: Container(
-            key: const Key('meal_history_button'),
-            height: 120,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFCE4E4),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(Icons.history, color: Color(0xFF4A1817)),
+          child: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MealHistoryScreen(),
                 ),
-                const Text(
-                  'Meal\nHistory',
-                  style: TextStyle(
-                    color: Color(0xFF1E1E1E),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+              );
+            },
+            child: Container(
+              key: const Key('meal_history_button'),
+              height: 120,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.pinkTint,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.history,
+                      color: AppColors.secondary,
+                    ),
                   ),
-                ),
-              ],
+                  const Text(
+                    'Meal\nHistory',
+                    style: TextStyle(
+                      color: Color(0xFF1E1E1E),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -390,7 +412,7 @@ class _WellnessTipCard extends StatelessWidget {
                   color: Colors.green[50], // Light green tint
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.lightbulb, color: Color(0xFF8B9D42)),
+                child: const Icon(Icons.lightbulb, color: AppColors.primary),
               ),
               const SizedBox(width: 12),
               const Text(
@@ -431,11 +453,18 @@ class _TodaysMealsHeader extends StatelessWidget {
           ),
         ),
         TextButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const MealHistoryScreen(),
+              ),
+            );
+          },
           child: const Text(
             'See All',
             style: TextStyle(
-              color: Color(0xFF8B9D42),
+              color: AppColors.primary,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -475,10 +504,7 @@ class _MealList extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               'Scan your first meal to get started!',
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey[400],
-              ),
+              style: TextStyle(fontSize: 13, color: Colors.grey[400]),
             ),
           ],
         ),
@@ -558,7 +584,7 @@ class _MealItem extends StatelessWidget {
             calories,
             style: const TextStyle(
               fontWeight: FontWeight.bold,
-              color: Color(0xFF8B9D42),
+              color: AppColors.primary,
               fontSize: 14,
             ),
           ),
@@ -587,10 +613,20 @@ class _CustomBottomNavigationBar extends StatelessWidget {
             _NavBarItem(icon: Icons.home, label: 'Home', isActive: true),
             _NavBarItem(icon: Icons.bar_chart, label: 'Stats', isActive: false),
             const SizedBox(width: 48), // Space for FAB
-            _NavBarItem(
-              icon: Icons.restaurant_menu,
-              label: 'Meals',
-              isActive: false,
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MealHistoryScreen(),
+                  ),
+                );
+              },
+              child: const _NavBarItem(
+                icon: Icons.restaurant_menu,
+                label: 'Meals',
+                isActive: false,
+              ),
             ),
             _NavBarItem(
               icon: Icons.person_outline,
@@ -621,16 +657,13 @@ class _NavBarItem extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          icon,
-          color: isActive ? const Color(0xFF8B9D42) : Colors.grey[400],
-        ),
+        Icon(icon, color: isActive ? AppColors.primary : Colors.grey[400]),
         const SizedBox(height: 4),
         Text(
           label,
           style: TextStyle(
             fontSize: 10,
-            color: isActive ? const Color(0xFF8B9D42) : Colors.grey[400],
+            color: isActive ? AppColors.primary : Colors.grey[400],
           ),
         ),
       ],

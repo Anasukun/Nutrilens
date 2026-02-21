@@ -38,11 +38,26 @@ class FoodAnalysisResult {
               ?.map((m) => MicroNutrient.fromJson(m as Map<String, dynamic>))
               .toList() ??
           [],
-      suggestions:
-          (json['suggestions'] as List<dynamic>?)
-              ?.map((s) => s as String)
-              .toList() ??
-          [],
+      suggestions: () {
+        final raw = json['suggestions'] as List<dynamic>? ?? [];
+        final parsed = raw
+            .map((s) => s.toString().trim())
+            .where(
+              (s) =>
+                  s.isNotEmpty &&
+                  s !=
+                      "Provide an actionable tip to improve the nutritional balance of this meal." &&
+                  s !=
+                      "Provide another practical tip or insight about this food.",
+            )
+            .toList();
+        if (parsed.isEmpty) {
+          return [
+            'Focus on portion control and stay hydrated for a balanced diet.',
+          ];
+        }
+        return parsed;
+      }(),
       detectedComponents:
           (json['detectedComponents'] as List<dynamic>?)
               ?.map(

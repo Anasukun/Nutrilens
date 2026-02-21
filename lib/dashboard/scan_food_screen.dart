@@ -129,7 +129,7 @@ class _ScanFoodScreenState extends State<ScanFoodScreen>
       setState(() {
         _isAnalyzing = false;
         _animationController.stop();
-        _analysisError = e.toString();
+        _analysisError = e.toString().replaceAll('Exception: ', '');
         _showResult = true;
       });
     }

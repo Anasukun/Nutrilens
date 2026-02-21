@@ -262,19 +262,19 @@ class FoodDetailsSheet extends StatelessWidget {
                         ),
                         const SizedBox(height: 32),
 
-                        // Smart Insights (Suggestions)
+                        // Quick Insights (Suggestions)
                         if (result.suggestions.isNotEmpty) ...[
                           const Padding(
                             padding: EdgeInsets.symmetric(horizontal: 24),
                             child: Row(
                               children: [
                                 Icon(
-                                  Icons.auto_awesome,
-                                  color: Color(0xFF8B9D42),
+                                  Icons.tips_and_updates_rounded,
+                                  color: Color(0xFFFFA000),
                                   size: 20,
                                 ),
                                 SizedBox(width: 8),
-                                Text('SMART INSIGHTS', style: _headerStyle),
+                                Text('QUICK INSIGHTS', style: _headerStyle),
                               ],
                             ),
                           ),
@@ -412,43 +412,38 @@ class FoodDetailsSheet extends StatelessWidget {
   Widget _buildInsightCard(String suggestion) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12, left: 24, right: 24),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border(
-          left: BorderSide(color: const Color(0xFF8B9D42), width: 4),
-          top: BorderSide(color: Colors.grey.withValues(alpha: 0.1)),
-          right: BorderSide(color: Colors.grey.withValues(alpha: 0.1)),
-          bottom: BorderSide(color: Colors.grey.withValues(alpha: 0.1)),
-        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF8B9D42).withValues(alpha: 0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(2),
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xFFF1F8E9),
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Icon(
+              Icons.check_circle_outline_rounded,
+              size: 18,
+              color: const Color(0xFF8B9D42),
             ),
-            child: const Icon(Icons.check, size: 14, color: Color(0xFF8B9D42)),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               suggestion,
               style: const TextStyle(
                 fontSize: 14,
                 color: Color(0xFF424242),
-                height: 1.5,
+                height: 1.4,
                 fontWeight: FontWeight.w500,
               ),
             ),

@@ -1,26 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'repositories/food_repository.dart';
-import 'repositories/mock_food_repository.dart';
+import 'repositories/api_food_repository.dart';
 import 'splash_screen.dart';
 import 'repositories/cached_food_repository.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 late List<CameraDescription> cameras;
 
 /// Global food analysis repository.
-/// Currently uses MockFoodAnalysisRepository for testing.
-/// When ready for real API, swap to:
-///   ApiFoodAnalysisRepository() (and import api_food_repository.dart)
 late FoodAnalysisRepository foodRepository;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   cameras = await availableCameras();
 
-  // Initialize repository: Mock → Cached
-  // To switch to real API: replace MockFoodAnalysisRepository() with ApiFoodAnalysisRepository()
   foodRepository = CachedFoodAnalysisRepository(
-    inner: MockFoodAnalysisRepository(),
+    inner: ApiFoodAnalysisRepository(),
   );
 
   runApp(const MainApp());

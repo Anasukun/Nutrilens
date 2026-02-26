@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
@@ -87,12 +88,12 @@ If there is food, analyze its nutritional content and provide the following deta
       }
       jsonStr = jsonStr.trim();
 
-      print('=== GEMINI RAW JSON ===');
-      print(jsonStr);
+      debugPrint('=== GEMINI RAW JSON ===');
+      debugPrint(jsonStr);
 
       final json = jsonDecode(jsonStr) as Map<String, dynamic>;
-      print('=== PARSED JSON ===');
-      print(json['suggestions']);
+      debugPrint('=== PARSED JSON ===');
+      debugPrint(json['suggestions']?.toString());
 
       if (json.containsKey('error')) {
         throw Exception(json['error']);

@@ -301,7 +301,7 @@ class _QuickActionsSection extends StatelessWidget {
               );
             },
             child: Container(
-              height: 120,
+              height: 130,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
@@ -352,7 +352,7 @@ class _QuickActionsSection extends StatelessWidget {
             },
             child: Container(
               key: const Key('meal_history_button'),
-              height: 120,
+              height: 130,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,

@@ -1,4 +1,4 @@
-🍏✨ NUTRILENS – AI Powered Nutrition Wellness App for All 🌟🥗
+🍎 NUTRILENS - AI powered nutrition wellness app for all 🥗✨
 
 Technical Infrastructure
 1. System Overview
@@ -8,9 +8,7 @@ ________________________________________
 2. System Architecture Design
 NutriLens adopts a cloud-based client-server architecture consisting of four primary layers:
 •	Frontend Layer
-•	Backend Layer
 •	Artificial Intelligence Processing Layer
-•	Database Layer
 This layered architecture enables efficient separation of system responsibilities, improving scalability, system performance, and maintainability.
 ________________________________________
 2.1 Frontend Layer
@@ -25,20 +23,7 @@ Key functionalities include:
 •	Providing user-friendly dashboards to track dietary history
 Flutter utilizes a widget-based UI architecture, allowing reusable interface components and efficient UI state management.
 ________________________________________
-2.2 Backend Layer
-The backend infrastructure of NutriLens is powered by Firebase cloud services. Firebase provides serverless backend architecture that simplifies system deployment, scaling, and real-time data synchronization.
-The backend layer acts as the communication bridge between the frontend application and artificial intelligence processing services.
-Core backend responsibilities include:
-•	User authentication and identity management
-•	Processing and validating user requests
-•	Managing API communication with AI processing services
-•	Handling dietary data storage and retrieval
-•	Managing application session control
-•	Supporting real-time data synchronization across user devices
-Firebase Authentication ensures secure login management using encrypted credential storage and token-based verification.
-Firebase Cloud Functions may be used to automate backend processes such as data processing triggers and AI service integration.
-________________________________________
-2.3 Artificial Intelligence Processing Layer
+2.2 Artificial Intelligence Processing Layer
 NutriLens integrates Google Gemini AI technology to perform intelligent food recognition and nutritional analysis. The AI module processes food images captured by users and generates detailed nutritional insights using image classification and data analysis techniques.
 The AI processing module performs several key operations:
 •	Food image recognition using machine learning-based classification models
@@ -47,18 +32,7 @@ The AI processing module performs several key operations:
 •	Recommendation generation that suggests nutrient improvements or dietary adjustments
 The AI system compares recognized food items with nutritional datasets to generate accurate analysis results. This automated analysis improves dietary tracking efficiency and reduces manual user input.
 ________________________________________
-2.4 Database Layer
-The database infrastructure is fully managed using Firebase cloud database services such as Cloud Firestore or Firebase Realtime Database. This layer handles persistent data storage, synchronization, and retrieval.
-The database stores:
-•	User profile information
-•	Dietary intake history
-•	Food recognition results
-•	Nutritional analysis records
-•	AI-generated dietary recommendations
-•	Application configuration settings
-Firebase databases support real-time synchronization, allowing users to access updated dietary data instantly across multiple devices. The cloud database also supports horizontal scaling to accommodate increasing user demand.
-________________________________________
-2.5 Development Productivity Tools
+2.3 Development Productivity Tools
 The development of NutriLens is supported by Antigravity, an agentic AI Integrated Development Environment (IDE) designed to enhance development productivity and workflow efficiency.
 Antigravity assists developers by providing:
 •	Intelligent code suggestions and automation
